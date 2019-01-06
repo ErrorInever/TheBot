@@ -16,6 +16,10 @@ def main():
 			print('auth False\n')
 			continue
 
+	server.get_data_session(access_token)
+	
+	server.start_long_poll_server()
+
 
 def is_file_init():
 	

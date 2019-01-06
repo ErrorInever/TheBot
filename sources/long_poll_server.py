@@ -10,6 +10,12 @@ class Long_Poll_Server(object):
 		self.session = requests.Session()
 		self.response = None
 
+		self.key = None
+		self.server = None
+		self.ts = None
+
+		self.event = None
+
 	def auth(self):
 		api_auth_url = 'https://oauth.vk.com/authorize'
 		reddirect_url = 'https://oauth.vk.com/blank.html'
@@ -29,3 +35,41 @@ class Long_Poll_Server(object):
 			return True
 		else:
 			return False
+
+	def get_data_session(self, access_token):
+
+		url_template = 'https://api.vk.com/method/messages.getLongPollServer'
+
+		values = {	'access_token': access_token, 
+					'lp_version':'3', 
+					'v': self.user_data['Api version']}
+
+		data = requests.get(url_template, params=values).json()['response']
+
+		self.key = data['key']
+		self.server = data['server']
+		self.ts = data['ts']
+
+	def start_long_poll_server(self):
+
+		url_template = 'https://{server}?act=a_check&key={key}&ts={ts}&wait=20&mode=2&version=3'
+
+		while True:
+			self.response = requests.get(url_template.format(
+				server=self.server, key=self.key, ts=self.ts)).json()
+
+			try:
+				self.event = self.response['updates']
+
+			except KeyError as e:
+				pass
+
+			if self.event:
+				for element in self.event:
+					print(element)
+
+			self.ts = self.response['ts']
+
+			 
+
+
