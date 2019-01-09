@@ -1,7 +1,6 @@
 import requests
 
-
-
+from Bot import Bot
 
 class Long_Poll_Server(object):
 
@@ -15,6 +14,8 @@ class Long_Poll_Server(object):
 		self.ts = None
 
 		self.event = None
+
+		bot = Bot.Bot()
 
 
 	def auth(self):
@@ -66,7 +67,7 @@ class Long_Poll_Server(object):
 
 			if self.event:
 				for element in self.event:
-					print(element)
+					bot.check_event(element)
 
 			self.ts = self.response['ts']
 
