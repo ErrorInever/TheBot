@@ -8,6 +8,7 @@ class Bot(object):
 
     def __init__(self):
         self._EVENTS = frozenset((4, 5, 8, 9, 80))
+        self._MESSAGE_MASK = frozenset((1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 65536, 131072))
         self.vk = Vk()
 
     def check_event(self, event, access_token):
@@ -27,15 +28,13 @@ class Bot(object):
         if code_event in self._EVENTS:
 
             if code_event == 4:
-                # new message
-                user_message = self.vk.parse_message(event)
+                flags_messages = event[2]
+                summands = [number for number in self._MESSAGE_MASK if number & flags_messages]
+                if 2 not in summands:
+                    user_message = self.vk.parse_message(event)
+                    response = self.vk.who_is_it(user_id=user_message['user_id'], access_token=access_token)
+                    self.vk.send_message(user_id=user_message['user_id'], access_token=access_token, message=response)
 
-                if user_message:
-                    print('parsing =', user_message)
-                    self.vk.send_message(user_id=user_message['user_id'], access_token=access_token,
-                                         message=user_message['user_message'])
-                else:
-                    return
 
             elif code_event == 5:
                 pass
